@@ -6,9 +6,16 @@ import ca.odell.glazedlists.FilterList
 import ca.odell.glazedlists.SortedList
 import griffon.transform.Threading
 
-import javax.swing.JTable
-import javax.swing.JViewport
+import javax.swing.*
+import javax.swing.event.ChangeEvent
+import javax.swing.event.ListSelectionEvent
+import javax.swing.event.TableColumnModelEvent
+import javax.swing.event.TableColumnModelListener
+import javax.swing.table.TableColumn
+import javax.swing.table.TableColumnModel
 import java.awt.*
+import java.awt.event.ActionEvent
+import java.awt.event.MouseListener
 
 /**
  * <p>Usage:
@@ -187,6 +194,8 @@ class MasterlistController {
             model._filterMap[name] = ''
         }
 
+        installColumnHider()
+
         if (model._loadOnStartup)
             loadData()
     }
@@ -195,6 +204,10 @@ class MasterlistController {
     void handleAttributes(Map attributes) {
         model._tableFormat = attributes.remove('tableFormat')
         model._columnModel = attributes.remove('columnModel')
+        if (!(model._columnModel instanceof HidingTableColumnModel))
+            model._columnModel = new HidingTableColumnModel(model._columnModel)
+        model._columnModel.addColumnModelListener(new VisibilityListener(model._columnModel))
+
         def list = attributes.remove('list')
         model._loader = attributes.remove('loader')
         if (model._loader != null && list != null)
@@ -393,5 +406,267 @@ class MasterlistController {
         // '+ view dimension - cell dimension' to set first selected row on the top
         rect.setLocation((int) (rect.x + dim.width - dimOne.width), ((int) rect.y + dim.height - dimOne.height))
         table.scrollRectToVisible(rect)
+    }
+
+    protected void installColumnHider() {
+        JTable mainTable = view.mainTable
+        HidingTableColumnModel columnModel = mainTable.columnModel
+        def menu = view.builder.popupMenu {
+            def hidden = []
+            for (int i = 0; i < columnModel.columnCount; i++) {
+                def index = i
+                def column = columnModel.getColumn(index)
+                def selected = true
+                if (model.hiddenColumns.contains(column.identifier)) {
+                    selected = false
+                    hidden << index
+                }
+                checkBoxMenuItem(text: columnModel.getColumn(index).headerValue.toString(), selected: selected, actionPerformed: { ActionEvent e ->
+                    columnModel.setVisible(index, e.source.selected)
+                })
+            }
+            hidden.each { idx ->
+                columnModel.setVisible(idx, false)
+            }
+        }
+
+        def evaluatePopup = { e ->
+            if (e.popupTrigger)
+                menu.show(mainTable.tableHeader, e.x, e.y)
+        }
+        mainTable.tableHeader.addMouseListener([
+                mousePressed: { e -> evaluatePopup(e) },
+                mouseReleased: { e -> evaluatePopup(e) },
+                mouseClicked: {},
+                mouseEntered: {},
+                mouseExited: {},
+        ] as MouseListener)
+    }
+
+    class VisibilityListener implements TableColumnModelListener {
+        HidingTableColumnModel model
+
+        VisibilityListener(HidingTableColumnModel model) {
+            this.model = model
+        }
+
+        @Override
+        void columnAdded(TableColumnModelEvent e) {
+            String columnName = e.source.getColumn(e.toIndex).getIdentifier()
+            view."filter${columnName.capitalize()}".visible = true
+        }
+
+        @Override
+        void columnRemoved(TableColumnModelEvent e) {
+            String columnName = e.source.getColumn(e.fromIndex).getIdentifier()
+            view."filter${columnName.capitalize()}".visible = false
+        }
+
+        @Override
+        void columnMoved(TableColumnModelEvent e) {
+        }
+
+        @Override
+        void columnMarginChanged(ChangeEvent e) {
+        }
+
+        @Override
+        void columnSelectionChanged(ListSelectionEvent e) {
+        }
+    }
+}
+class HidingTableColumnModel implements TableColumnModel {
+    protected TableColumnModel model
+    protected Map<TableColumn, Boolean> columnVisibility
+    private java.util.List<Integer> visibleColumnIndexes = null
+    private java.util.List<TableColumn> visibleColumns = null
+    protected java.util.List<TableColumnModelListener> listeners = []
+
+    HidingTableColumnModel(TableColumnModel model) {
+        this.model = model
+        this.columnVisibility = model.getColumns().toList().inject([:]) { map, v -> map[v] = true; return map }
+    }
+
+    void dirty() {
+        visibleColumnIndexes = null
+        visibleColumns = null
+    }
+
+    java.util.List getVisibleColumnIndexes() {
+        if (visibleColumnIndexes != null)
+            return visibleColumnIndexes
+        visibleColumnIndexes = []
+        def columns = model.getColumns().toList()
+        for (int idx = 0; idx < columns.size(); idx++) {
+            TableColumn column = columns[idx]
+            if (columnVisibility[column])
+                visibleColumnIndexes << idx
+        }
+        return visibleColumnIndexes
+    }
+
+    java.util.List getVisibleColumns() {
+        if (visibleColumns != null)
+            return visibleColumns
+        visibleColumns = getVisibleColumnIndexes().collect { model.getColumn(it) }
+    }
+
+    boolean isVisible(int index, boolean onlyVisible = true) {
+        return isVisible(getColumn(index, onlyVisible))
+    }
+
+    boolean isVisible(TableColumn column) {
+        columnVisibility[column]
+    }
+
+    void setVisible(int index, boolean visible) {
+        int idx
+        if (visible) {
+            columnVisibility[model.getColumn(index)] = visible
+            dirty()
+            idx = getColumnIndexByModelIndex(index)
+            fireVisibiltyChanged(idx, visible)
+        } else {
+            idx = getColumnIndexByModelIndex(index)
+            fireVisibiltyChanged(idx, visible)
+            columnVisibility[model.getColumn(index)] = visible
+            dirty()
+        }
+    }
+
+    protected fireVisibiltyChanged(int index, boolean visible) {
+        for (TableColumnModelListener listener : listeners) {
+            if (visible)
+                listener.columnAdded(new TableColumnModelEvent(this, -1, index))
+            else
+                listener.columnRemoved(new TableColumnModelEvent(this, index, -1))
+        }
+    }
+
+    int getColumnIndexByVisibleIndex(int columnIndex) {
+        if (columnIndex < 0)
+            return columnIndex
+        getVisibleColumnIndexes()[columnIndex]
+    }
+
+    int getColumnIndexByModelIndex(int columnIndex) {
+        if (columnIndex < 0)
+            return columnIndex
+        try {
+            TableColumn column = model.getColumn(columnIndex)
+            return getVisibleColumns().indexOf(column)
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return getVisibleColumns().size()
+        }
+    }
+
+    @Override
+    void addColumn(TableColumn column) {
+        dirty()
+        model.addColumn(column)
+        columnVisibility[column] = true
+    }
+
+    @Override
+    void removeColumn(TableColumn column) {
+        dirty()
+        model.removeColumn(column)
+        columnVisibility[column] = false
+    }
+
+    @Override
+    void moveColumn(int columnIndex, int newIndex, boolean onlyVisible = true) {
+        dirty()
+        model.moveColumn(columnIndex, newIndex)
+    }
+
+    @Override
+    void setColumnMargin(int newMargin) {
+        model.setColumnMargin(newMargin)
+    }
+
+    @Override
+    int getColumnCount(boolean onlyVisible = true) {
+        return onlyVisible ? getVisibleColumnIndexes().size() : model.getColumnCount()
+    }
+
+    @Override
+    Enumeration<TableColumn> getColumns(boolean onlyVisible = true) {
+        return onlyVisible ? Collections.enumeration(getVisibleColumns()) : model.columns
+    }
+
+    @Override
+    int getColumnIndex(Object columnIdentifier, boolean onlyVisible = true) {
+        int idx = model.getColumnIndex(columnIdentifier)
+        return onlyVisible ? getColumnIndexByModelIndex(idx) : idx
+    }
+
+    @Override
+    TableColumn getColumn(int columnIndex, boolean onlyVisible = true) {
+        return onlyVisible ? getVisibleColumns()[columnIndex] : model.getColumn(columnIndex)
+    }
+
+    @Override
+    int getColumnMargin() {
+        return model.getColumnMargin()
+    }
+
+    @Override
+    int getColumnIndexAtX(int x) {
+        if (x < 0)
+            return -1
+        for (int column = 0; column < getColumnCount(true); column++) {
+            x = x - getColumn(column, true).width
+            if (x < 0)
+                return column
+        }
+        return -1
+    }
+
+    @Override
+    int getTotalColumnWidth(boolean onlyVisible = true) {
+        return onlyVisible ? getVisibleColumns().sum { TableColumn column -> column.width } : model.getTotalColumnWidth()
+    }
+
+    @Override
+    void setColumnSelectionAllowed(boolean flag) {
+        model.setColumnSelectionAllowed(false)
+    }
+
+    @Override
+    boolean getColumnSelectionAllowed() {
+        return model.getColumnSelectionAllowed()
+    }
+
+    @Override
+    int[] getSelectedColumns(boolean onlyVisible = true) {
+        return onlyVisible ? (model.getSelectedColumns().inject([]) { list, idx -> if (isVisible(idx, false)) list << getColumnIndexByModelIndex(idx); return list }) as int[] : model.getSelectedColumns()
+    }
+
+    @Override
+    int getSelectedColumnCount(boolean onlyVisible = true) {
+        return getSelectedColumns(onlyVisible).size()
+    }
+
+    @Override
+    void setSelectionModel(ListSelectionModel newModel) {
+        model.setSelectionModel(newModel)
+    }
+
+    @Override
+    ListSelectionModel getSelectionModel() {
+        return model.getSelectionModel()
+    }
+
+    @Override
+    void addColumnModelListener(TableColumnModelListener x) {
+        listeners << x
+        model.addColumnModelListener(x)
+    }
+
+    @Override
+    void removeColumnModelListener(TableColumnModelListener x) {
+        listeners.remove(x)
+        model.removeColumnModelListener(x)
     }
 }

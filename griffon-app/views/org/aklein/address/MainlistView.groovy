@@ -93,7 +93,7 @@ panel(id: 'mainPanel') {
                 sourceEvent: 'listChanged',
                 sourceValue: { masterModel.selected.size() },
                 converter: { it ? app.getMessage('mainlist.label.visibleLines.text', [it], '{0} entries') : '' }),
-                visible: bind(source: masterModel.selected, sourceEvent: 'listChanged', sourceValue: { println masterModel.selected; masterModel.selected }),
+                visible: bind(source: masterModel.selected, sourceEvent: 'listChanged', sourceValue: { masterModel.selected }),
                 background: Color.RED,
                 constraints: 'TRAILING'
         )

@@ -23,7 +23,7 @@ def createButton(String name, Closure buttonAction = null) {
         icon = propertyEditor.getValue()
     }
     noparent {
-        button( id: key,
+        button(id: key,
                 action(
                         name: app.getMessage("${model._messagePrefix}masterlist.button.${key}.text", app.getMessage("masterlist.button.${key}.text", name)),
                         mnemonic: app.getMessage("${model._messagePrefix}masterlist.button.${key}.mnemonic", (String) app.getMessage("masterlist.button.${key}.mnemonic", (String) null)),
@@ -42,8 +42,13 @@ panel {
     panel(constraints: 'grow, pushy') {
         migLayout(layoutConstraints: 'wrap 1, fill, ins 0')
         panel(id: 'filterRow', layout: new TableFilterLayoutManager({ mainTable.columnModel })) {
-            for (int i = 0; i < model._tableFormat.columnCount; i++)
-                textField(text: bind(source: model._filterMap, sourceProperty: model._tableFormat.getColumnName(i), mutual: true))
+            for (int i = 0; i < model._tableFormat.columnCount; i++) {
+                String columnName = model._tableFormat.getColumnName(i)
+                textField(id: "filter${columnName.capitalize()}",
+                        text: bind(source: model._filterMap, sourceProperty: columnName, mutual: true)
+                )
+                // TODO: hide/show textField when column is hidden/shown
+            }
             // TODO: Filter for boolean usw.
         }
         scrollPane(constraints: 'grow, pushy') {
@@ -56,7 +61,7 @@ panel {
                 model.selected = model.selectionModel.selected
             }
             mainTable.columnModel = model._columnModel
-            mainTable.mouseClicked = { MouseEvent evt->
+            mainTable.mouseClicked = { MouseEvent evt ->
                 if (evt.clickCount == 2) {
                     controller.dclickAction()
                 }

@@ -17,7 +17,8 @@ class TableFilterLayoutManager implements LayoutManager {
     void removeLayoutComponent(Component comp) {}
 
     Dimension preferredLayoutSize(Container parent) {
-        return new Dimension(realModel.totalColumnWidth + (realModel.columnMargin * (realModel.columnCount - 1)), (int) parent.components.preferredSize.height.max())
+        def components = parent.components.findAll { it.visible }
+        return new Dimension(realModel.totalColumnWidth + (realModel.columnMargin * (realModel.columnCount - 1)), (int) components.preferredSize.height.max())
     }
 
     Dimension minimumLayoutSize(Container parent) {
@@ -27,12 +28,13 @@ class TableFilterLayoutManager implements LayoutManager {
     void layoutContainer(Container parent) {
         synchronized (parent.getTreeLock()) {
             def m = realModel.columnMargin
-            def min = Math.min(parent.componentCount, realModel.columnCount)
+            def components = parent.components.findAll { it.visible }
+            def min = Math.min(components.size(), realModel.columnCount)
             int x = 0
             int y = 0
             int h = preferredLayoutSize(parent).height
             for (int i = 0; i < min; i++) {
-                JComponent child = parent.getComponent(i)
+                JComponent child = components[i]
                 TableColumn column = realModel.getColumn(i)
                 if (i == 0)
                     h = child.preferredSize.height

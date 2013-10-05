@@ -194,6 +194,7 @@ log4j = {
     warn  'griffon'
 }
 
+griffon.enable.native2ascii = true
 
 app.fileType = '.groovy'
 app.defaultPackageName = 'org.aklein.address'

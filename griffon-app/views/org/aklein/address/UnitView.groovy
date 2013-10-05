@@ -38,6 +38,17 @@ def communicationDisplay(CommunicationType type, Communication com) {
     l.findAll { it }.join(' ')
 }
 
+def relationFullDisplay(Relation relation, Unit unit) {
+    if (!relation) return ''
+    if (!unit) return ''
+    if (relation.unit == unit) {
+        return app.getMessage('unit.relation.full.has', [relation.description ?: '*', relationDisplay(relation, unit)])
+    } else if (relation.relation == unit) {
+        return app.getMessage('unit.relation.full.is', [relation.description ?: '*', relationDisplay(relation, unit)])
+    } else
+        return ''
+}
+
 def relationTypeDisplay(Relation relation, Unit unit) {
     if (!relation) return ''
     if (!unit) return ''

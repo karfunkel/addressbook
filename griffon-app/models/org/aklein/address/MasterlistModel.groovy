@@ -42,6 +42,7 @@ class MasterlistModel {
     Closure _delete
     Closure _dclick
     String _messagePrefix = ''
+    Collection hiddenColumns = []
 
     void set_messagePrefix(String messagePrefix) {
         if (!messagePrefix)

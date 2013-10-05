@@ -17,11 +17,6 @@ root {
     }
 }
 
-
-
-
-
-
 jx {
     'groovy.swing.SwingXBuilder' {
         view = '*'
