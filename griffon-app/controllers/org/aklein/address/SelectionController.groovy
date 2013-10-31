@@ -23,6 +23,28 @@ class SelectionController {
     }
 
     def select = {
+        def toAdd = view.listGroup.model.selected
+        model._list.readWriteLock.writeLock().lock()
+        try {
+            for(def add: toAdd) {
+                if(!model._list.contains(add))
+                    model._list.addAll add
+            }
+        }
+        finally {
+            model._list.readWriteLock.writeLock().unlock()
+        }
+    }
 
+    @Threading(Threading.Policy.SKIP)
+    def delete = {
+        def toRemove = view.selectionGroup.model.selected
+        model._list.readWriteLock.writeLock().lock()
+        try {
+            model._list.removeAll toRemove
+        }
+        finally {
+            model._list.readWriteLock.writeLock().unlock()
+        }
     }
 }

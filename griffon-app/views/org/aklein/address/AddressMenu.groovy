@@ -23,9 +23,9 @@ menuBar = menuBar {
     menu(text: app.getMessage('application.menu.Extra.name', 'Extra'), mnemonic: app.getMessage('application.menu.Extra.mnemonic', 'E')) {
         menuItem(importDbAction)
         separator()
-        menuItem(googleSyncAction)
+        //menuItem(googleSyncAction)
         menuItem(googleExportAction)
-        menuItem(googleImportAction)
+        //menuItem(googleImportAction)
         /*
         separator()
         menuItem(dbExportAction)

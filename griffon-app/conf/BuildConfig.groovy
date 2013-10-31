@@ -177,6 +177,7 @@ griffon.project.dependency.resolution = {
         compile 'com.google.http-client:google-http-client-jackson2:1.14.1-beta'
         compile 'com.google.apis:google-api-services-oauth2:v2-rev35-1.14.2-beta'
         compile 'com.google.gdata:core:1.47.1'
+        compile 'com.itextpdf:itextpdf:5.4.4'
     }
 }
 

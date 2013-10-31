@@ -266,6 +266,7 @@ panel(id: 'mainPanel') {
                     },
                     comparator: { a, b -> a.name <=> b.name },
                     messagePrefix: 'selectionlist.',
+                    delete: controller.delete,
             ) {
                 selectionGroup = parentContext.mvcGroup
                 selectionModel = parentContext.mvcGroup.model

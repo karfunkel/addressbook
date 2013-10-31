@@ -490,8 +490,10 @@ class GoogleService {
         ContactGroupEntry defaultGroup = getContactGroupEntry(userId, 'System Group: My Contacts')
         entry.addGroupMembershipInfo(new GroupMembershipInfo(false, defaultGroup.id))
         unit.unitCategories.each { uc ->
-            ContactGroupEntry group = getContactGroupEntry(userId, uc.category.name)
-            entry.addGroupMembershipInfo(new GroupMembershipInfo(false, group.id))
+            if(uc?.category) {
+                ContactGroupEntry group = getContactGroupEntry(userId, uc.category.name)
+                entry.addGroupMembershipInfo(new GroupMembershipInfo(false, group.id))
+            }
         }
 
         entry.structuredPostalAddresses.clear()
