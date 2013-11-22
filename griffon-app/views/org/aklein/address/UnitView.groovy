@@ -17,58 +17,36 @@ actions {
 
 def unitDisplay(Unit unit) {
     if (!unit) return ''
-    return unit.name
+    return unit.display
 }
 
 def addressDisplay(Address address) {
     if (!address) return ''
-    [address.street, address.nation?.iso2, address.zip, address.city, address.region, address.addition].findAll { it }.join(' ')
+    return address.oneliner
 }
 
 def unitCommunicationDisplay(Unit_Communication uCom) {
-    return communicationDisplay(uCom.communicationType, uCom.communication)
+    return uCom.oneliner
 }
 
 def communicationDisplay(CommunicationType type, Communication com) {
-    if (!com) return ''
-    def l = []
-    if (type?.useAreaCode)
-        l << "+${com.nation?.tel}"
-    l << com.text
-    l.findAll { it }.join(' ')
+    return Unit_Communication.getOneliner(type, com)
 }
 
 def relationFullDisplay(Relation relation, Unit unit) {
     if (!relation) return ''
-    if (!unit) return ''
-    if (relation.unit == unit) {
-        return app.getMessage('unit.relation.full.has', [relation.description ?: '*', relationDisplay(relation, unit)])
-    } else if (relation.relation == unit) {
-        return app.getMessage('unit.relation.full.is', [relation.description ?: '*', relationDisplay(relation, unit)])
-    } else
-        return ''
+    return relation.getFullDisplay(unit)
 }
 
 def relationTypeDisplay(Relation relation, Unit unit) {
     if (!relation) return ''
-    if (!unit) return ''
-    if (relation.unit == unit) {
-        return app.getMessage('unit.relation.is', 'is')
-    } else if (relation.relation == unit) {
-        return app.getMessage('unit.relation.has', 'has')
-    } else
-        throw new IllegalArgumentException("Relation ${this.dump()} has no relation to unit ${unitDisplay(unit)}")
+    return relation.getTypeDisplay(unit)
 }
 
 def relationDisplay(Relation relation, Unit unit) {
     if (!relation) return ''
-    if (!unit) return ''
-    if (relation.unit == unit) {
-        return unitDisplay(relation.relation)
-    } else if (relation.relation == unit) {
-        return unitDisplay(relation.unit)
-    } else
-        throw new IllegalArgumentException("Relation ${this.dump()} has no relation to unit ${unitDisplay(unit)}")
+    return relation.getDisplay(unit)
+
 }
 
 buttonGroup(id: 'unitGroup')

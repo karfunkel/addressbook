@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Etiketten" language="groovy" columnCount="2" pageWidth="595" pageHeight="842" columnWidth="272" columnSpacing="6" leftMargin="22" rightMargin="22" topMargin="60" bottomMargin="60" whenResourceMissingType="Empty" uuid="fb6970d6-f811-408a-a2b3-fe641535e7a7">
+	<property name="ireport.zoom" value="2.5937424601000023"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="65"/>
+	<style name="default" isDefault="true" fontSize="10"/>
+	<parameter name="unit_address_list" class="java.lang.String">
+		<parameterDescription><![CDATA[List of Unit_Address IDs]]></parameterDescription>
+		<defaultValueExpression><![CDATA["1,2,3,4,5,6,7,8"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="unit_list" class="java.lang.String" isForPrompting="false">
+		<parameterDescription><![CDATA[List of Unit ID's]]></parameterDescription>
+		<defaultValueExpression><![CDATA["-1,-2,-3,-4,-5,-6"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+  ADDRESS."STREET"               AS ADDRESS_STREET,
+  ADDRESS."ZIP"                  AS ADDRESS_ZIP,
+  ADDRESS."CITY"                 AS ADDRESS_CITY,
+  ADDRESS."REGION"               AS ADDRESS_REGION,
+  ADDRESS."ADDITION"             AS ADDRESS_ADDITION,
+  UNIT_ADDRESS."NOTE"            AS UNIT_ADDRESS_NOTE,
+  UNIT."NOTE"                    AS UNIT_NOTE,
+  UNIT."TYPE"                    AS UNIT_TYPE,
+  UNIT."LASTNAME"                AS UNIT_LASTNAME,
+  UNIT."FIRSTNAME"               AS UNIT_FIRSTNAME,
+  UNIT."NAME_PART"               AS UNIT_NAME_PART,
+  UNIT."POSITION"                AS UNIT_POSITION,
+  UNIT."ORGANISATION"            AS UNIT_ORGANISATION,
+  UNIT."DEPARTMENT"              AS UNIT_DEPARTMENT,
+  UNIT."TITLE"                   AS UNIT_TITLE,
+  UNIT."BIRTHDAY"                AS UNIT_BIRTHDAY,
+  UNIT."NAME"                    AS UNIT_NAME,
+  UNIT."VAT_ID"                  AS UNIT_VAT_ID,
+  ADDRESS_TYPE."USE_POSTAL_CODE" AS ADDRESS_TYPE_USE_POSTAL_CODE,
+  SALUTATION."ABBREV"            AS SALUTATION_ABBREV,
+  SALUTATION."LETTER"            AS SALUTATION_LETTER,
+  SALUTATION."ADDRESS"           AS SALUTATION_ADDRESS,
+  NATION_ADDRESS."ISO2"          AS NATION_ADDRESS_ISO2,
+  NATION_ADDRESS."ISO3"          AS NATION_ADDRESS_ISO3,
+  NATION_ADDRESS."TEL"           AS NATION_ADDRESS_TEL,
+  NATION_ADDRESS."NAME"          AS NATION_ADDRESS_NAME,
+  NATION_ADDRESS."ENGLISH"       AS NATION_ADDRESS_ENGLISH,
+  NATION_UNIT."ISO2"             AS NATION_UNIT_ISO2,
+  NATION_UNIT."ISO3"             AS NATION_UNIT_ISO3,
+  NATION_UNIT."TEL"              AS NATION_UNIT_TEL,
+  NATION_UNIT."NAME"             AS NATION_UNIT_NAME,
+  NATION_UNIT."ENGLISH"          AS NATION_UNIT_ENGLISH
+FROM
+    "PUBLIC"."UNIT" UNIT
+    RIGHT OUTER JOIN "PUBLIC"."UNIT_ADDRESS" UNIT_ADDRESS
+      ON UNIT."ID" = UNIT_ADDRESS."UNIT"
+    LEFT OUTER JOIN "PUBLIC"."ADDRESS" ADDRESS
+      ON UNIT_ADDRESS."ADDRESS" = ADDRESS."ID"
+    LEFT OUTER JOIN "PUBLIC"."ADDRESS_TYPE" ADDRESS_TYPE
+      ON UNIT_ADDRESS."ADDRESS_TYPE" = ADDRESS_TYPE."ID"
+    LEFT OUTER JOIN "PUBLIC"."NATION" NATION_ADDRESS
+      ON ADDRESS."NATION" = NATION_ADDRESS."ID"
+    LEFT OUTER JOIN "PUBLIC"."NATION" NATION_UNIT
+      ON UNIT."NATION" = NATION_UNIT."ID"
+    LEFT OUTER JOIN "PUBLIC"."SALUTATION" SALUTATION
+      ON UNIT."SALUTATION" = SALUTATION."ID"
+WHERE UNIT_ADDRESS.ID IN ($P!{unit_address_list})]]>
+	</queryString>
+	<field name="ADDRESS_STREET" class="java.lang.String"/>
+	<field name="ADDRESS_ZIP" class="java.lang.String"/>
+	<field name="ADDRESS_CITY" class="java.lang.String"/>
+	<field name="ADDRESS_REGION" class="java.lang.String"/>
+	<field name="ADDRESS_ADDITION" class="java.lang.String"/>
+	<field name="UNIT_ADDRESS_NOTE" class="java.lang.String"/>
+	<field name="UNIT_NOTE" class="java.lang.String"/>
+	<field name="UNIT_TYPE" class="java.lang.String"/>
+	<field name="UNIT_LASTNAME" class="java.lang.String"/>
+	<field name="UNIT_FIRSTNAME" class="java.lang.String"/>
+	<field name="UNIT_NAME_PART" class="java.lang.String"/>
+	<field name="UNIT_POSITION" class="java.lang.String"/>
+	<field name="UNIT_ORGANISATION" class="java.lang.String"/>
+	<field name="UNIT_DEPARTMENT" class="java.lang.String"/>
+	<field name="UNIT_TITLE" class="java.lang.String"/>
+	<field name="UNIT_BIRTHDAY" class="java.sql.Timestamp"/>
+	<field name="UNIT_NAME" class="java.lang.String"/>
+	<field name="UNIT_VAT_ID" class="java.lang.String"/>
+	<field name="ADDRESS_TYPE_USE_POSTAL_CODE" class="java.lang.Boolean"/>
+	<field name="SALUTATION_ABBREV" class="java.lang.String"/>
+	<field name="SALUTATION_LETTER" class="java.lang.String"/>
+	<field name="SALUTATION_ADDRESS" class="java.lang.String"/>
+	<field name="NATION_ADDRESS_ISO2" class="java.lang.String"/>
+	<field name="NATION_ADDRESS_ISO3" class="java.lang.String"/>
+	<field name="NATION_ADDRESS_TEL" class="java.lang.String"/>
+	<field name="NATION_ADDRESS_NAME" class="java.lang.String"/>
+	<field name="NATION_ADDRESS_ENGLISH" class="java.lang.String"/>
+	<field name="NATION_UNIT_ISO2" class="java.lang.String"/>
+	<field name="NATION_UNIT_ISO3" class="java.lang.String"/>
+	<field name="NATION_UNIT_TEL" class="java.lang.String"/>
+	<field name="NATION_UNIT_NAME" class="java.lang.String"/>
+	<field name="NATION_UNIT_ENGLISH" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="143" splitType="Prevent">
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="2f6467ca-2351-4915-9a72-3afb16544cd4" style="default" x="20" y="20" width="230" height="120"/>
+				<textElement verticalAlignment="Middle" markup="html">
+					<paragraph lineSpacing="Fixed" lineSpacingSize="10.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new GroovyClassLoader().parseClass('''
+    def static createLabel(type, salutation, name, title, first, part, last, addition, street, zip, city, region, nation) {
+        int fillers = 0
+        StringBuilder sb = new StringBuilder()
+        sb << (salutation ?: "") << '<br>'
+        sb << (type == 'J' ? name : [title, first, part, last].findAll{it}.join(' ')) << '<br>'
+        if(addition)
+            sb << (addition ?: "") << '<br>'
+        else
+            fillers++
+        sb << (street ?: "") << '<br>'
+        sb << ([zip, city].findAll{it}.join(' ')) << '<br>'
+        if(region)
+            sb << (region ?: "") << '<br>'
+        else
+            fillers++
+        sb << (nation ?: "") << '<br>'
+        fillers.times { sb << '<br>' }
+        System.out.println(sb)
+        return sb.toString()
+    }
+''').createLabel($F{UNIT_TYPE}, $F{SALUTATION_ADDRESS}, $F{UNIT_NAME}, $F{UNIT_TITLE}, $F{UNIT_FIRSTNAME},
+        $F{UNIT_NAME_PART}, $F{UNIT_LASTNAME}, $F{ADDRESS_ADDITION}, $F{ADDRESS_STREET}, $F{ADDRESS_ZIP},
+        $F{ADDRESS_CITY}, $F{ADDRESS_REGION}, $F{NATION_ADDRESS_NAME}
+    )]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

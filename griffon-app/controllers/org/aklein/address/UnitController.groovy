@@ -143,7 +143,7 @@ class UnitController extends DialogControllerBase<UnitModel, UnitView> {
     def linkAddress = {
         def list
         withEbean { String ebeanServerName, EbeanServer server ->
-            list = server.find(Unit_Address).findList()
+            list = server.find(Unit_Address).fetch("address").fetch("addressType").fetch("unit").findList()
         }
         withMVCGroup('addressSelection', value: list, list: view.addressPanelGroup.model.list) { m, v, c ->
             m.title = app.getMessage("addressSelection.dialog.title", "Select address")

@@ -1,18 +1,22 @@
 package org.aklein.address
 
 import org.aklein.address.db.Unit
+import org.aklein.address.db.Unit_Address
 
-import javax.swing.JSplitPane
+import javax.swing.JFileChooser
 import java.text.ParseException
+
+fileChooser(id: "sourceDialog",
+        dialogTitle: app.getMessage('application.dialog.sourceDialog.title', "Please choose a report"),
+        fileSelectionMode: JFileChooser.FILES_ONLY,
+        fileFilter: [getDescription: {-> "*.jrxml" }, accept: { file -> file ==~ /.*?\.jrxml/ || file.isDirectory() }] as javax.swing.filechooser.FileFilter
+)
 
 String orga = app.getMessage('application.flag.organisation').toLowerCase()
 String pers = app.getMessage('application.flag.person').toLowerCase()
 
-def unitView = new UnitView()
-unitView.app = app
-
 panel(id: 'mainPanel') {
-    migLayout(columnConstraints: '[fill][200:200:200]', layoutConstraints: 'fill')
+    migLayout(columnConstraints: '[fill][400:400:400]', layoutConstraints: 'fill')
     widget(constraints: 'grow, pushy',
             metaComponentFix('masterlist',
                     tableFormat: defaultAdvancedTableFormat(
@@ -53,22 +57,24 @@ panel(id: 'mainPanel') {
                                     ],
                                     [
                                             name: 'address',
-                                            comparator: { a, b -> a?.collect { unitView.addressDisplay(it) }?.join(', ') ?: '' <=> b?.collect { unitView.addressDisplay(it) }?.join(', ') ?: '' } as Comparator,
-                                            read: { obj, columns, idx -> obj.unitAddresses?.address },
+                                            comparator: { a, b -> a?.collect { it.display }?.join(', ') ?: '' <=> b?.collect { it.display }?.join(', ') ?: '' } as Comparator,
+                                            read: { obj, columns, idx ->
+                                                obj.unitAddresses?.address
+                                            },
                                             class: String
                                     ],
                                     [
                                             name: 'communication',
-                                            comparator: { a, b -> a?.collect { unitView.unitCommunicationDisplay(it) }?.join(', ') ?: '' <=> b?.collect { unitView.unitCommunicationDisplay(it) }?.join(', ') ?: '' } as Comparator,
+                                            comparator: { a, b -> a?.collect { it.display() }?.join(', ') ?: '' <=> b?.collect { it.display }?.join(', ') ?: '' } as Comparator,
                                             read: { obj, columns, idx -> obj.unitCommunications },
                                             class: String
                                     ],
                                     [
                                             name: 'relation',
                                             read: { obj, columns, idx ->
-                                                (obj.sourceRelations + obj.targetRelations)?.collect { unitView.relationFullDisplay(it, obj) }?.join(', ')
+                                                (obj.sourceRelations + obj.targetRelations)?.collect { it.getFullDisplay(obj) }?.join(', ')
                                             },
-                                            class: String
+                                            constraints: 'right', class: String
                                     ],
                             ]
                     ),
@@ -120,14 +126,14 @@ panel(id: 'mainPanel') {
                         column("address", modelIndex: 7, headerValue: app.getMessage('selectionlist.table.header.address.text'), width: [50, 200]) {
                             cellRenderer {
                                 onRender {
-                                    children[0].text = value?.collect { unitView.addressDisplay(it) }?.join(', ') ?: ''
+                                    children[0].text = value?.collect { it.display }?.join(', ') ?: ''
                                 }
                             }
                         }
                         column("communication", modelIndex: 8, headerValue: app.getMessage('selectionlist.table.header.communication.text'), width: [50, 100]) {
                             cellRenderer {
                                 onRender {
-                                    children[0].text = value?.collect { unitView.unitCommunicationDisplay(it) }?.join(', ') ?: ''
+                                    children[0].text = value?.collect { it.display }?.join(', ') ?: ''
                                 }
                             }
                         }
@@ -178,21 +184,22 @@ panel(id: 'mainPanel') {
                                 }
                             }
                         }
-                        def a = item?.unitAddresses?.address?.collect { unitView.addressDisplay(it) }?.join(', ') ?: ''
+                        def a = item?.unitAddresses?.address?.collect { it.display }?.join(', ') ?: ''
                         if (filter.Address && !a?.toLowerCase()?.contains(filter.Address.toLowerCase()))
                             return false
 
-                        def c = item?.unitCommunications?.collect { unitView.unitCommunicationDisplay(it) }?.join(', ') ?: ''
+                        def c = item?.unitCommunications?.collect { it.display }?.join(', ') ?: ''
                         if (filter.Communication && !c?.toLowerCase()?.contains(filter.Communication.toLowerCase()))
                             return false
 
-                        def r = (item.sourceRelations + item.targetRelations)?.collect { "${unitView.relationTypeDisplay(it, item)} ${unitView.relationDisplay(it, item)}" }?.join(', ')
+                        def r = (item.sourceRelations + item.targetRelations)?.collect { "${it.getTypeDisplay(item)} ${it.getDisplay(item)}" }?.join(', ')
                         if (filter.Relation && !r?.toLowerCase()?.contains(filter.Relation.toLowerCase()))
                             return false
                         return true
                     },
                     comparator: { a, b -> a.name <=> b.name },
-                    messagePrefix: 'selectionlist.',
+                    messrelationagePrefix: 'selectionlist.',
+                    doubleclick: controller.select
             ) {
                 listGroup = parentContext.mvcGroup
                 listModel = parentContext.mvcGroup.model
@@ -201,30 +208,41 @@ panel(id: 'mainPanel') {
                 button(listView.createButton('Select', controller.select), constraints: 'TRAILING')
             }
     )
-
     widget(constraints: 'grow, pushy',
             metaComponentFix('masterlist',
                     tableFormat: defaultAdvancedTableFormat(
                             columns: [
                                     [
                                             name: 'name',
-                                            class: String
-                                    ],
-                                    /*
-                                    [
-                                            name: 'nation',
-                                            comparator: { a, b -> a?.iso3 <=> b?.iso3 } as Comparator,
+                                            comparator: { a, b -> a.unit.name <=> b.unit.name } as Comparator,
+                                            read: { obj, columns, idx -> obj.unit.name },
                                             class: String
                                     ],
                                     [
-                                            name: 'type',
+                                            name: 'display',
+                                            comparator: { a, b -> a.address.display <=> b.address.display } as Comparator,
+                                            read: { obj, columns, idx -> obj.address.display },
                                             class: String
-                                    ],
-                                    */
+                                    ]
                             ]
                     ),
                     columnModel: columnModelFix {
-                        column("name", modelIndex: 0, headerValue: app.getMessage('selectionlist.table.header.name.text'), width: [50, 200])
+                        column("name", modelIndex: 0, headerValue: app.getMessage('selectionlist.table.header.name.text'), width: [50, 200]) {
+                            cellRenderer {
+                                onRender {
+                                    children[0].text = value ?: ''
+                                    children[0].toolTipText = value ?: ''
+                                }
+                            }
+                        }
+                        column("display", modelIndex: 1, headerValue: app.getMessage('selectionlist.table.header.address.text'), width: [50, 400]) {
+                            cellRenderer {
+                                onRender {
+                                    children[0].text = value ?: ''
+                                    children[0].toolTipText = value ?: ''
+                                }
+                            }
+                        }
                         /*
                         column("nation", modelIndex: 1, headerValue: app.getMessage('selectionlist.table.header.nation.text'), width: [200]) {
                             cellRenderer {
@@ -249,8 +267,10 @@ panel(id: 'mainPanel') {
                         */
                     },
                     list: model._list,
-                    filter: { Unit item, Map filter ->
-                        if (filter.Name && !item?.name?.toLowerCase()?.contains(filter.Name.toLowerCase()))
+                    filter: { Unit_Address item, Map filter ->
+                        if (filter.Name && !item?.unit?.name?.toLowerCase()?.contains(filter.Name.toLowerCase()))
+                            return false
+                        if (filter.Display && !item?.address?.display?.toLowerCase()?.contains(filter.Display.toLowerCase()))
                             return false
                         /*
                         if (filter.Type) {
@@ -264,9 +284,10 @@ panel(id: 'mainPanel') {
                         */
                         return true
                     },
-                    comparator: { a, b -> a.name <=> b.name },
+                    comparator: { a, b -> a.unit.name <=> b.unit.name ?: a.address.display <=> b.address.display },
                     messagePrefix: 'selectionlist.',
                     delete: controller.delete,
+                    doubleclick: controller.delete
             ) {
                 selectionGroup = parentContext.mvcGroup
                 selectionModel = parentContext.mvcGroup.model

@@ -1,6 +1,8 @@
 package org.aklein.address.db
 
 import groovy.transform.AutoClone
+import griffon.core.GriffonApplication
+import griffon.util.ApplicationHolder
 
 import javax.persistence.*
 import java.sql.Timestamp
@@ -84,6 +86,33 @@ class Address {
         result = 13 * result + (region?.hashCode() ?: 0)
         result = 13 * result + (addition?.hashCode() ?: 0)
         return result
+    }
+
+    String getDisplay() {
+        return [getNation()?.iso2, zip, city, street, region, addition].findAll { it }.join(' ')
+    }
+
+    String getOneliner() {
+        return [street, getNation()?.iso2, zip, city, region, addition].findAll { it }.join(' ')
+    }
+
+    String getMultiliner() {
+        def parts = []
+        if (street)
+            parts << street
+        if (addition)
+            parts << addition
+        if (zip && city)
+            parts << "$zip $city"
+        else if (zip)
+            parts << zip
+        else if (city)
+            parts << city
+        if (region)
+            parts << region
+        if (nation?.name)
+            parts << nation?.name
+        return parts.join('\n')
     }
 }
 
@@ -200,6 +229,40 @@ class Relation {
         result = 13 * result + (description?.hashCode() ?: 0)
         return result
     }
+
+    GriffonApplication getApp() {
+        return ApplicationHolder.application
+    }
+
+    String getFullDisplay(Unit unit) {
+        if (!unit) return ''
+        if (this.getUnit() == unit) {
+            return app.getMessage('unit.relation.full.has', [this.getDescription() ?: '*', getDisplay(unit)])
+        } else if (this.getRelation() == unit) {
+            return app.getMessage('unit.relation.full.is', [this.getDescription() ?: '*', getDisplay(unit)])
+        } else
+            return ''
+    }
+
+    String getTypeDisplay(Unit unit) {
+        if (!unit) return ''
+        if (this.getUnit() == unit) {
+            return app.getMessage('unit.relation.is', 'is')
+        } else if (this.getRelation() == unit) {
+            return app.getMessage('unit.relation.has', 'has')
+        } else
+            throw new IllegalArgumentException("Relation ${this.dump()} has no relation to unit ${unit.display}")
+    }
+
+    String getDisplay(Unit unit) {
+        if (!unit) return ''
+        if (this.getUnit() == unit) {
+            return this.getRelation()?.display ?: ''
+        } else if (this.getRelation() == unit) {
+            return this.getUnit()?.display ?: ''
+        } else
+            throw new IllegalArgumentException("Relation ${this.dump()} has no relation to unit ${unit.display}")
+    }
 }
 
 @Entity
@@ -237,6 +300,14 @@ class Communication {
         result = 13 * result + (nation?.eHashCode() ?: 0)
         result = 13 * result + (text?.hashCode() ?: 0)
         return result
+    }
+
+    String getDisplay(CommunicationType type) {
+        return getOneliner(type)
+    }
+
+    String getOneliner(CommunicationType type) {
+        return Unit_Communication.getOneliner(type, this)
     }
 }
 
@@ -521,6 +592,10 @@ class Unit {
         }
         return result
     }
+
+    String getDisplay() {
+        return name ?: ''
+    }
 }
 
 @Entity
@@ -602,6 +677,24 @@ class Unit_Communication {
         result = 13 * result + (communication?.eHashCode() ?: 0)
         result = 13 * result + (communicationType?.eHashCode() ?: 0)
         return result
+    }
+
+    String getDisplay() {
+        return getOneliner()
+    }
+
+    String getOneliner() {
+        return getOneliner(communicationType, communication)
+    }
+
+    static String getOneliner(CommunicationType type, Communication com) {
+        if (!com) return ''
+        def l = []
+        if (type?.useAreaCode)
+            l << "+${com.nation?.tel}"
+        l << com.text
+        l.findAll { it }.join(' ')
+        return l
     }
 }
 

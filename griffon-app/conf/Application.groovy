@@ -203,4 +203,11 @@ mvcGroups {
         view = 'org.aklein.address.AddressView'
         controller = 'org.aklein.address.AddressController'
     }
+
+    // MVC Group for "preview"
+    'preview' {
+        model      = 'org.aklein.address.PreviewModel'
+        view       = 'org.aklein.address.PreviewView'
+        controller = 'org.aklein.address.PreviewController'
+    }
 }
