@@ -48,7 +48,7 @@ class GoogleAuthHelper {
     private static void tokenInfo(String accessToken) throws IOException {
         header("Validating a token")
         Tokeninfo tokeninfo = oauth2.tokeninfo().setAccessToken(accessToken).execute()
-        println tokeninfo.toPrettyString()
+        //println tokeninfo.toPrettyString()
         if (!tokeninfo.audience == clientSecrets.getDetails().clientId) {
             System.err.println("ERROR: audience does not match our client ID!")
         }
@@ -57,11 +57,11 @@ class GoogleAuthHelper {
     private static void userInfo() throws IOException {
         header("Obtaining User Profile Information")
         Userinfo userinfo = oauth2.userinfo().get().execute()
-        println(userinfo.toPrettyString())
+        //println(userinfo.toPrettyString())
     }
 
     static void header(String name) {
-        println "\n================== $name ==================\n"
+        //println "\n================== $name ==================\n"
     }
 
 

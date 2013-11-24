@@ -171,11 +171,11 @@ class GoogleService {
                             com.google.gdata.data.contacts.ContactEntry entry = createContactEntry(userId, unit)
                             entry = save(userId, service, entry)
                             unit.googleId = entry.id
-                            println debug(unit)
+                            //println debug(unit)
                             try {
                                 server.save(unit)
                             } catch (e) {
-                                println(debug(unit))
+                                //println(debug(unit))
                                 e.printStackTrace()
                             }
                         }

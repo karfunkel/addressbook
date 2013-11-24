@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="10" bottomMargin="10" uuid="5e2051e0-ac0b-4cb8-8eab-4fa6e7762424">
+	<property name="ireport.zoom" value="1.5000000000000007"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="default" isDefault="true" fontSize="8"/>
+	<parameter name="unit_address_list" class="java.lang.String" isForPrompting="false">
+		<parameterDescription><![CDATA[List of Unit_Address IDs]]></parameterDescription>
+		<defaultValueExpression><![CDATA["1,2,3,4,5,6,7,8"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="unit_list" class="java.lang.String">
+		<parameterDescription><![CDATA[List of Unit ID's]]></parameterDescription>
+		<defaultValueExpression><![CDATA["-1,-2,-3,-4,-5,-6, -1185"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+     CONCAT(UNIT."NAME",UNIT."LASTNAME",UNIT."NAME_PART",UNIT."FIRSTNAME") AS UNAME,
+     UNIT."ID" AS UNIT_ID,
+     UNIT."NATION" AS UNIT_NATION,
+     UNIT."SALUTATION" AS UNIT_SALUTATION,
+     UNIT."NOTE" AS UNIT_NOTE,
+     UNIT."TYPE" AS UNIT_TYPE,
+     UNIT."LASTNAME" AS UNIT_LASTNAME,
+     UNIT."FIRSTNAME" AS UNIT_FIRSTNAME,
+     UNIT."NAME_PART" AS UNIT_NAME_PART,
+     UNIT."POSITION" AS UNIT_POSITION,
+     UNIT."ORGANISATION" AS UNIT_ORGANISATION,
+     UNIT."DEPARTMENT" AS UNIT_DEPARTMENT,
+     UNIT."TITLE" AS UNIT_TITLE,
+     UNIT."BIRTHDAY" AS UNIT_BIRTHDAY,
+     UNIT."NAME" AS UNIT_NAME,
+     UNIT."VAT_ID" AS UNIT_VAT_ID,
+     UNIT."EDIT_DATE" AS UNIT_EDIT_DATE,
+     UNIT."GOOGLE_ID" AS UNIT_GOOGLE_ID,
+     UNIT."VERSION" AS UNIT_VERSION
+FROM
+     "PUBLIC"."UNIT" UNIT
+ORDER BY UNAME]]>
+	</queryString>
+	<field name="UNAME" class="java.lang.String"/>
+	<field name="UNIT_ID" class="java.lang.Integer"/>
+	<field name="UNIT_NATION" class="java.lang.Integer"/>
+	<field name="UNIT_SALUTATION" class="java.lang.Integer"/>
+	<field name="UNIT_NOTE" class="java.lang.String"/>
+	<field name="UNIT_TYPE" class="java.lang.String"/>
+	<field name="UNIT_LASTNAME" class="java.lang.String"/>
+	<field name="UNIT_FIRSTNAME" class="java.lang.String"/>
+	<field name="UNIT_NAME_PART" class="java.lang.String"/>
+	<field name="UNIT_POSITION" class="java.lang.String"/>
+	<field name="UNIT_ORGANISATION" class="java.lang.String"/>
+	<field name="UNIT_DEPARTMENT" class="java.lang.String"/>
+	<field name="UNIT_TITLE" class="java.lang.String"/>
+	<field name="UNIT_BIRTHDAY" class="java.sql.Timestamp"/>
+	<field name="UNIT_NAME" class="java.lang.String"/>
+	<field name="UNIT_VAT_ID" class="java.lang.String"/>
+	<field name="UNIT_EDIT_DATE" class="java.sql.Timestamp"/>
+	<field name="UNIT_GOOGLE_ID" class="java.lang.String"/>
+	<field name="UNIT_VERSION" class="java.sql.Timestamp"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="77" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="c6d4a7e4-be82-4070-a4b1-ab70dc3e5585" style="default" x="0" y="3" width="402" height="12"/>
+				<textElement>
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new GroovyClassLoader().parseClass('''
+    def static getName(type, name, title, first, part, last) {
+        return (type == 'J' ? name : [last, part, first, title].findAll{it}.join(', '))
+    }
+''').getName($F{UNIT_TYPE}, $F{UNIT_NAME}, $F{UNIT_TITLE}, $F{UNIT_FIRSTNAME}, $F{UNIT_NAME_PART}, $F{UNIT_LASTNAME})]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement uuid="c29731dc-33c8-466e-a52d-28c1c81b4d55" x="0" y="1" width="802" height="1"/>
+				<graphicElement>
+					<pen lineWidth="2.0"/>
+				</graphicElement>
+			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="67118053-46cb-4e7c-bd5f-2d603383a5ab" x="0" y="15" width="150" height="12"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[new GroovyClassLoader().parseClass('''
+    def static getCategories(unit, db) {
+        def result = db.createStatement()
+			.executeQuery("SELECT CATEGORY.NAME AS NAME FROM CATEGORY LEFT OUTER JOIN UNIT_CATEGORY ON CATEGORY.ID=UNIT_CATEGORY.CATEGORY WHERE UNIT_CATEGORY.UNIT=$unit")
+		def list = []
+		while(result.next()) {
+			list << result.getString('NAME')
+		}
+        return list.findAll{it}.join(', ')
+    }
+''').getCategories($F{UNIT_ID}, $P{REPORT_CONNECTION})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="c0cbc39a-f483-4d29-b8e3-f1d277fd2f47" x="150" y="15" width="23" height="12"/>
+				<textElement/>
+				<text><![CDATA[Geb.:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="a5498db9-56a8-458f-8f88-66d4d17f4c3d" x="173" y="15" width="50" height="12"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{UNIT_BIRTHDAY}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="4d31ae4a-13cd-47b0-a815-62c82d7296cb" x="223" y="15" width="27" height="12"/>
+				<textElement/>
+				<text><![CDATA[Beruf:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="581cf6bb-ffc4-4c7d-86fc-05072b4d8484" x="250" y="15" width="152" height="12"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{UNIT_POSITION}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="e184350a-e5f9-4f0c-a7fd-8f5d5baeeb8b" x="0" y="27" width="26" height="12"/>
+				<textElement/>
+				<text><![CDATA[Orga.:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="4f022d66-c710-4bb8-b198-bdbe71228209" x="26" y="27" width="376" height="12"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{UNIT_ORGANISATION}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="2e283b55-b5c2-4ae0-998a-2562c6e3eb8f" x="0" y="39" width="26" height="12"/>
+				<textElement/>
+				<text><![CDATA[Abt.:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="dda79b88-ad42-4fca-bcdf-186cb57ecb23" x="26" y="39" width="376" height="12"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{UNIT_DEPARTMENT}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="c4b7bd76-35e3-4c5c-b1f1-faac6dde15f9" x="0" y="51" width="402" height="25"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$F{UNIT_NOTE}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="2b001751-6e2d-4a5a-8756-725fdfd2fdfa" x="402" y="3" width="400" height="36"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[new GroovyClassLoader().parseClass('''
+    def static getAddresses(unit, db) {
+        def result = db.createStatement()
+			.executeQuery("""
+			SELECT
+			  UNIT.TYPE AS UNIT_TYPE,
+			  ADDRESS.STREET AS ADDRESS_STREET,
+			  ADDRESS.ZIP AS ADDRESS_ZIP,
+			  ADDRESS.CITY AS ADDRESS_CITY,
+			  ADDRESS.REGION AS ADDRESS_REGION,
+			  ADDRESS.ADDITION AS ADDRESS_ADDITION,
+			  UNIT_ADDRESS.NOTE AS UNIT_ADDRESS_NOTE,
+			  ADDRESS_TYPE.NAME AS ADDRESS_TYPE_NAME,
+			  ADDRESS_TYPE.USE_POSTAL_CODE AS ADDRESS_TYPE_USE_POSTAL_CODE,
+			  NATION.ISO2 AS NATION_ADDRESS_ISO2,
+			  NATION.ISO3 AS NATION_ADDRESS_ISO3,
+			  NATION.TEL AS NATION_ADDRESS_TEL,
+			  NATION.NAME AS NATION_ADDRESS_NAME,
+			  NATION.ENGLISH AS NATION_ADDRESS_ENGLISH
+			FROM
+				UNIT
+				RIGHT OUTER JOIN UNIT_ADDRESS ON UNIT.ID=UNIT_ADDRESS.UNIT
+				LEFT OUTER JOIN ADDRESS ON ADDRESS.ID=UNIT_ADDRESS.ADDRESS
+				RIGHT OUTER JOIN ADDRESS_TYPE ON UNIT_ADDRESS.ADDRESS_TYPE= ADDRESS_TYPE.ID
+				LEFT OUTER JOIN NATION ON ADDRESS.NATION=NATION.ID
+			WHERE UNIT.ID=$unit""")
+		def list = []
+        while(result.next()) {
+            list << result.getString('ADDRESS_TYPE_NAME') + ':'
+            list << result.getString('ADDRESS_ADDITION')
+            list << result.getString('ADDRESS_STREET')
+            list << '-'
+            list << result.getString('NATION_ADDRESS_ISO2')
+            list << result.getString('ADDRESS_ZIP')
+            list << result.getString('ADDRESS_CITY')
+            list << result.getString('ADDRESS_REGION')
+            list << '|'
+        }
+        def s = list.findAll{it}.join(' ')
+        if(s.size() > 1)
+            s = s.substring(0, s.size() - 2)
+        return s
+    }
+''').getAddresses($F{UNIT_ID}, $P{REPORT_CONNECTION})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="c66a179a-9b9f-4512-8d11-e52b4980adac" x="402" y="39" width="400" height="37"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[new GroovyClassLoader().parseClass('''
+    def static getCommunications(unit, db) {
+        def result = db.createStatement()
+			.executeQuery("""
+			SELECT
+				 UNIT.TYPE AS UNIT_TYPE,
+				 COMMUNICATION.TEXT AS COMMUNICATION_TEXT,
+				 COMMUNICATION_TYPE.NAME AS COMMUNICATION_TYPE_NAME,
+				 COMMUNICATION_TYPE.USE_AREA_CODE AS COMMUNICATION_TYPE_USE_AREA_CODE,
+				 UNIT_COMMUNICATION.NOTE AS UNIT_COMMUNICATION_NOTE,
+				 NATION.ISO2 AS NATION_COMMUNICATION_ISO2,
+				 NATION.ISO3 AS NATION_COMMUNICATION_ISO3,
+				 NATION.TEL AS NATION_COMMUNICATION_TEL,
+				 NATION.NAME AS NATION_COMMUNICATION_NAME,
+				 NATION.ENGLISH AS NATION_COMMUNICATION_ENGLISH
+ 			FROM
+				 UNIT
+				 RIGHT OUTER JOIN UNIT_COMMUNICATION ON UNIT.ID=UNIT_COMMUNICATION.UNIT
+     			 LEFT OUTER JOIN COMMUNICATION ON COMMUNICATION.ID=UNIT_COMMUNICATION.COMMUNICATION
+				 RIGHT OUTER JOIN COMMUNICATION_TYPE ON UNIT_COMMUNICATION.COMMUNICATION_TYPE= COMMUNICATION_TYPE.ID
+				 LEFT OUTER JOIN NATION ON COMMUNICATION.NATION=NATION.ID
+			WHERE UNIT_COMMUNICATION.UNIT=$unit""")
+		def list = []
+		while(result.next()) {
+			list << result.getString('COMMUNICATION_TYPE_NAME') + ':'
+		    if (result.getBoolean('COMMUNICATION_TYPE_USE_AREA_CODE'))
+				list << "+" + result.getString('NATION_COMMUNICATION_TEL')
+		    list << result.getString('COMMUNICATION_TEXT')
+            list << '|'
+        }
+        def s = list.findAll{it}.join(' ')
+        if(s.size() > 1)
+            s = s.substring(0, s.size() - 2)
+        return s
+    }
+''').getCommunications($F{UNIT_ID}, $P{REPORT_CONNECTION})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="15" splitType="Stretch">
+			<textField>
+				<reportElement uuid="da736e54-7e65-4cb4-b1fe-729f419aff2c" style="default" x="682" y="1" width="80" height="14"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Seite "+$V{PAGE_NUMBER}+" von"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement uuid="31462b8e-d871-47db-b291-ff3c92304dc8" style="default" x="762" y="1" width="40" height="14"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>
