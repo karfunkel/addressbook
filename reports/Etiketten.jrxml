@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Etiketten" language="groovy" columnCount="2" pageWidth="595" pageHeight="842" columnWidth="272" columnSpacing="6" leftMargin="22" rightMargin="22" topMargin="60" bottomMargin="60" whenResourceMissingType="Empty" uuid="fb6970d6-f811-408a-a2b3-fe641535e7a7">
 	<property name="ireport.zoom" value="2.5937424601000023"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="65"/>
+	<property name="ireport.y" value="55"/>
 	<style name="default" isDefault="true" fontSize="10"/>
 	<parameter name="unit_address_list" class="java.lang.String">
 		<parameterDescription><![CDATA[List of Unit_Address IDs]]></parameterDescription>
@@ -117,19 +117,18 @@ ORDER BY UNAME]]>
             sb << (addition ?: "") << '<br>'
         else
             fillers++
-        sb << (street ?: "") << '<br>'
-        sb << ([zip, city].findAll{it}.join(' ')) << '<br>'
+        sb << (street ?: "") << '<br><br>'
+        sb << '<b>' <<([nation, zip, city].findAll{it}.join(' ')) << '</b><br>'
         if(region)
             sb << (region ?: "") << '<br>'
         else
             fillers++
-        sb << (nation ?: "") << '<br>'
         fillers.times { sb << '<br>' }
         return sb.toString()
     }
 ''').createLabel($F{UNIT_TYPE}, $F{SALUTATION_ADDRESS}, $F{UNIT_NAME}, $F{UNIT_TITLE}, $F{UNIT_FIRSTNAME},
         $F{UNIT_NAME_PART}, $F{UNIT_LASTNAME}, $F{ADDRESS_ADDITION}, $F{ADDRESS_STREET}, $F{ADDRESS_ZIP},
-        $F{ADDRESS_CITY}, $F{ADDRESS_REGION}, $F{NATION_ADDRESS_NAME}
+        $F{ADDRESS_CITY}, $F{ADDRESS_REGION}, $F{NATION_ADDRESS_ISO2}
     )]]></textFieldExpression>
 			</textField>
 		</band>

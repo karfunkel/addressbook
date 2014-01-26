@@ -35,7 +35,7 @@
      UNIT."VERSION" AS UNIT_VERSION
 FROM
      "PUBLIC"."UNIT" UNIT
-ORDER BY UNAME]]>
+ORDER BY REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(CONCAT(UNIT."NAME",UNIT."LASTNAME",UNIT."NAME_PART",UNIT."FIRSTNAME"), 'Ä', 'A'), 'Ö', 'O'), 'Ü', 'U'), 'ä', 'a'), 'ö', 'o'), 'ü', 'u'), 'ß', 'ss')]]>
 	</queryString>
 	<field name="UNAME" class="java.lang.String"/>
 	<field name="UNIT_ID" class="java.lang.Integer"/>
@@ -79,7 +79,7 @@ ORDER BY UNAME]]>
 				</graphicElement>
 			</line>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="67118053-46cb-4e7c-bd5f-2d603383a5ab" x="0" y="15" width="150" height="12"/>
+				<reportElement uuid="67118053-46cb-4e7c-bd5f-2d603383a5ab" x="0" y="15" width="223" height="12"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[new GroovyClassLoader().parseClass('''
     def static getCategories(unit, db) {
@@ -94,22 +94,22 @@ ORDER BY UNAME]]>
 ''').getCategories($F{UNIT_ID}, $P{REPORT_CONNECTION})]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="c0cbc39a-f483-4d29-b8e3-f1d277fd2f47" x="150" y="15" width="23" height="12"/>
+				<reportElement uuid="c0cbc39a-f483-4d29-b8e3-f1d277fd2f47" x="223" y="15" width="27" height="12"/>
 				<textElement/>
 				<text><![CDATA[Geb.:]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="a5498db9-56a8-458f-8f88-66d4d17f4c3d" x="173" y="15" width="50" height="12"/>
+				<reportElement uuid="a5498db9-56a8-458f-8f88-66d4d17f4c3d" x="250" y="15" width="152" height="12"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{UNIT_BIRTHDAY}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="4d31ae4a-13cd-47b0-a815-62c82d7296cb" x="223" y="15" width="27" height="12"/>
+				<reportElement uuid="4d31ae4a-13cd-47b0-a815-62c82d7296cb" x="0" y="39" width="27" height="12"/>
 				<textElement/>
 				<text><![CDATA[Beruf:]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="581cf6bb-ffc4-4c7d-86fc-05072b4d8484" x="250" y="15" width="152" height="12"/>
+				<reportElement uuid="581cf6bb-ffc4-4c7d-86fc-05072b4d8484" x="27" y="39" width="375" height="12"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{UNIT_POSITION}]]></textFieldExpression>
 			</textField>
@@ -119,17 +119,17 @@ ORDER BY UNAME]]>
 				<text><![CDATA[Orga.:]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="4f022d66-c710-4bb8-b198-bdbe71228209" x="26" y="27" width="376" height="12"/>
+				<reportElement uuid="4f022d66-c710-4bb8-b198-bdbe71228209" x="26" y="27" width="197" height="12"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{UNIT_ORGANISATION}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="2e283b55-b5c2-4ae0-998a-2562c6e3eb8f" x="0" y="39" width="26" height="12"/>
+				<reportElement uuid="2e283b55-b5c2-4ae0-998a-2562c6e3eb8f" x="223" y="27" width="27" height="12"/>
 				<textElement/>
 				<text><![CDATA[Abt.:]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="dda79b88-ad42-4fca-bcdf-186cb57ecb23" x="26" y="39" width="376" height="12"/>
+				<reportElement uuid="dda79b88-ad42-4fca-bcdf-186cb57ecb23" x="250" y="27" width="152" height="12"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[$F{UNIT_DEPARTMENT}]]></textFieldExpression>
 			</textField>
@@ -139,7 +139,7 @@ ORDER BY UNAME]]>
 				<textFieldExpression><![CDATA[$F{UNIT_NOTE}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="2b001751-6e2d-4a5a-8756-725fdfd2fdfa" x="402" y="3" width="400" height="36"/>
+				<reportElement uuid="2b001751-6e2d-4a5a-8756-725fdfd2fdfa" x="402" y="3" width="390" height="36"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[new GroovyClassLoader().parseClass('''
     def static getAddresses(unit, db) {
@@ -187,7 +187,7 @@ ORDER BY UNAME]]>
 ''').getAddresses($F{UNIT_ID}, $P{REPORT_CONNECTION})]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="c66a179a-9b9f-4512-8d11-e52b4980adac" x="402" y="39" width="400" height="37"/>
+				<reportElement uuid="c66a179a-9b9f-4512-8d11-e52b4980adac" x="402" y="39" width="390" height="37"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[new GroovyClassLoader().parseClass('''
     def static getCommunications(unit, db) {
@@ -231,12 +231,12 @@ ORDER BY UNAME]]>
 	<pageFooter>
 		<band height="15" splitType="Stretch">
 			<textField>
-				<reportElement uuid="da736e54-7e65-4cb4-b1fe-729f419aff2c" style="default" x="682" y="1" width="80" height="14"/>
+				<reportElement uuid="da736e54-7e65-4cb4-b1fe-729f419aff2c" style="default" x="672" y="1" width="80" height="14"/>
 				<textElement textAlignment="Right"/>
 				<textFieldExpression><![CDATA["Seite "+$V{PAGE_NUMBER}+" von"]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Report">
-				<reportElement uuid="31462b8e-d871-47db-b291-ff3c92304dc8" style="default" x="762" y="1" width="40" height="14"/>
+				<reportElement uuid="31462b8e-d871-47db-b291-ff3c92304dc8" style="default" x="752" y="1" width="40" height="14"/>
 				<textElement/>
 				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>

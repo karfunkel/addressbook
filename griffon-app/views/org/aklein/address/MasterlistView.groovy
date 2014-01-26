@@ -36,6 +36,28 @@ def createButton(String name, Closure buttonAction = null) {
     }.last()
 }
 
+def createToggleButton(String name, Closure buttonAction = null) {
+    def key = name.toLowerCase()
+    def icon = app.resolveResource("${model._messagePrefix}masterlist.button.${key}.icon", (Object) app.resolveResource("masterlist.button.${key}.icon", (Object) null))
+    if (icon) {
+        PropertyEditor propertyEditor = PropertyEditorManager.findEditor(Icon)
+        propertyEditor.setAsText(String.valueOf(icon))
+        icon = propertyEditor.getValue()
+    }
+    noparent {
+        toggleButton(id: key,
+                action(
+                        name: app.getMessage("${model._messagePrefix}masterlist.button.${key}.text", app.getMessage("masterlist.button.${key}.text", name)),
+                        mnemonic: app.getMessage("${model._messagePrefix}masterlist.button.${key}.mnemonic", (String) app.getMessage("masterlist.button.${key}.mnemonic", (String) null)),
+                        smallIcon: icon,
+                        shortDescription: app.getMessage("${model._messagePrefix}masterlist.button.${key}.description", (String) app.getMessage("masterlist.button.${key}.description", (String) null)),
+                        accelerator: app.getMessage("${model._messagePrefix}masterlist.button.${key}.accelerator", (String) app.getMessage("masterlist.button.${key}.accelerator", (String) null)),
+                        closure: buttonAction ?: controller."${key}Action"
+                )
+        )
+    }.last()
+}
+
 panel {
     migLayout(layoutConstraints: 'wrap 1, fill, ins 0')
 

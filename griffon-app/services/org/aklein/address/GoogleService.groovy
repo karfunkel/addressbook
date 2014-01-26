@@ -100,7 +100,11 @@ class GoogleService {
                     def ehash = entry.userDefinedFields?.find { it.key == 'ehash' }?.value?.toInteger()
                     Unit unit = units.remove(addressbookId)
                     if (!unit) {
-                        if (importGoogle) {
+                        if (addressbookId) {
+                            // Removed locally
+                            if (exportGoogle)
+                                entry.delete()
+                        } else if (importGoogle) {
                             // Created at Google
                             unit = createUnit(entry)
                             server.save(unit)
@@ -109,16 +113,11 @@ class GoogleService {
                             save(userId, service, entry)
                         }
                     } else {
-                        if (!unit) {
-                            // Removed locally
-                            if (exportGoogle)
-                                entry.delete()
+                        if (entry.hasDeleted()) {
+                            // Removed at Google
+                            if (importGoogle)
+                                server.delete(unit)
                         } else {
-                            if (entry.hasDeleted()) {
-                                // Removed at Google
-                                if (importGoogle)
-                                    server.delete(unit)
-                            }
                             int uehash = unit.eHashCode()
                             DateTime googleChange = entry.edited
                             boolean remoteChange = lastSync ? googleChange.compareTo(lastSync) > 0 : true
@@ -244,7 +243,7 @@ class GoogleService {
         while (true) {
             resultFeed = service.getFeed(url, com.google.gdata.data.contacts.ContactFeed)
             result.addAll resultFeed.entries
-            if(resultFeed.nextLink == null)
+            if (resultFeed.nextLink == null)
                 break;
             url = new URL(resultFeed.nextLink.href)
         }
@@ -490,7 +489,7 @@ class GoogleService {
         ContactGroupEntry defaultGroup = getContactGroupEntry(userId, 'System Group: My Contacts')
         entry.addGroupMembershipInfo(new GroupMembershipInfo(false, defaultGroup.id))
         unit.unitCategories.each { uc ->
-            if(uc?.category) {
+            if (uc?.category) {
                 ContactGroupEntry group = getContactGroupEntry(userId, uc.category.name)
                 entry.addGroupMembershipInfo(new GroupMembershipInfo(false, group.id))
             }

@@ -1,5 +1,7 @@
 package org.aklein.address
 
+import ca.odell.glazedlists.FilterList
+import ca.odell.glazedlists.matchers.MatcherEditor
 import com.avaje.ebean.EbeanServer
 import griffon.plugins.datasource.DataSourceHolder
 import griffon.transform.Threading
@@ -78,6 +80,13 @@ class SelectionController {
         finally {
             model._list.readWriteLock.writeLock().unlock()
         }
+    }
+
+    def doublets = { evt ->
+        model.filterDoublets = evt.source.selected
+        MasterlistMatcherEditor editor = view.selectionModel.matcherEditor
+        if(editor)
+            editor.fireChanged()
     }
 
     @Threading(Threading.Policy.SKIP)

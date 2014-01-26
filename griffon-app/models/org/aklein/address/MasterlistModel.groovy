@@ -6,6 +6,7 @@ import ca.odell.glazedlists.FilterList
 import ca.odell.glazedlists.gui.TableFormat
 import ca.odell.glazedlists.matchers.AbstractMatcherEditor
 import ca.odell.glazedlists.matchers.Matcher
+import ca.odell.glazedlists.matchers.MatcherEditor
 import ca.odell.glazedlists.swing.EventSelectionModel
 
 import java.util.Timer
@@ -28,6 +29,7 @@ class MasterlistModel {
     TableColumnModel _columnModel
     ObservableMap _filterMap = [:]
     FilterList filtered
+    MasterlistMatcherEditor matcherEditor
     EventList list = new BasicEventList()
     EventList visible
     EventList selected
@@ -115,5 +117,9 @@ class MasterlistMatcherEditor extends AbstractMatcherEditor {
             timer.schedule(task, 250)
             timer.purge()
         } as PropertyChangeListener)
+    }
+
+    void fireChanged() {
+        fireChanged(matcher)
     }
 }

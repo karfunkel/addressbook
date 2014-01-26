@@ -139,7 +139,7 @@ panel(id: 'mainPanel') {
                         }
                         column("relation", modelIndex: 9, headerValue: app.getMessage('selectionlist.table.header.relation.text'), width: [50, 200])
                     },
-                    hiddenColumns: ["nation", "type", "note", "salutation", "relation"],
+                    hiddenColumns: ["nation", "type", "note", "salutation", "relation", "communication"],
                     loader: controller.loader,
                     filter: { Unit item, Map filter ->
                         if (filter.Name && !item?.name?.toLowerCase()?.contains(filter.Name.toLowerCase()))
@@ -205,7 +205,7 @@ panel(id: 'mainPanel') {
                 listModel = parentContext.mvcGroup.model
                 listView = parentContext.mvcGroup.view
                 label(constraints: 'GROW')
-                button(listView.createButton('Select', controller.select), constraints: 'TRAILING')
+                button(listView.createButton(app.getMessage('selectionlist.button.select.text'), controller.select), constraints: 'TRAILING')
             }
     )
     widget(constraints: 'grow, pushy',
@@ -243,34 +243,14 @@ panel(id: 'mainPanel') {
                                 }
                             }
                         }
-                        /*
-                        column("nation", modelIndex: 1, headerValue: app.getMessage('selectionlist.table.header.nation.text'), width: [200]) {
-                            cellRenderer {
-                                onRender {
-                                    children[0].text = value?.iso3 ?: ''
-                                    children[0].toolTipText = value?.name ?: ''
-                                }
-                            }
-                        }
-                        column("type", modelIndex: 2, headerValue: app.getMessage('selectionlist.table.header.type.text'), width: [50]) {
-                            cellRenderer {
-                                onRender {
-                                    if (value == Unit.ORGANISATION)
-                                        children[0].text = app.getMessage('application.flag.organisation')
-                                    else if (value == Unit.PERSON)
-                                        children[0].text = app.getMessage('application.flag.person')
-                                    else
-                                        children[0].text = ''
-                                }
-                            }
-                        }
-                        */
                     },
                     list: model._list,
                     filter: { Unit_Address item, Map filter ->
                         if (filter.Name && !item?.unit?.name?.toLowerCase()?.contains(filter.Name.toLowerCase()))
                             return false
                         if (filter.Display && !item?.address?.display?.toLowerCase()?.contains(filter.Display.toLowerCase()))
+                            return false
+                        if (model.filterDoublets && item?.unit?.unitAddresses?.size() <= 1)
                             return false
                         /*
                         if (filter.Type) {
@@ -292,9 +272,10 @@ panel(id: 'mainPanel') {
                 selectionGroup = parentContext.mvcGroup
                 selectionModel = parentContext.mvcGroup.model
                 selectionView = parentContext.mvcGroup.view
+                toggleButton(selectionView.createToggleButton(app.getMessage('selectionlist.button.doublets.text'), controller.doublets), constraints: 'TRAILING')
                 label(constraints: 'GROW')
                 button(constraints: 'DELETE')
-                button(selectionView.createButton('Print', controller.print), constraints: 'TRAILING')
+                button(selectionView.createButton(app.getMessage('selectionlist.button.print.text'), controller.print), constraints: 'TRAILING')
             }
     )
 }

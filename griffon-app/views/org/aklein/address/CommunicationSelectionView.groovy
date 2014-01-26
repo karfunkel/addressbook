@@ -37,7 +37,7 @@ def communicationDisplayCache = [:]
 def communicationDisplay = { Communication communication ->
     if (communicationDisplayCache[communication.id])
         return communicationDisplayCache[communication.id]
-    d = new UnitView().communicationDisplay(model.communicationType, communication)
+    def d = new UnitView().communicationDisplay(model.communicationType, communication)
     communicationDisplayCache[communication.id] = d
     return d
 }

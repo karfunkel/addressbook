@@ -693,8 +693,7 @@ class Unit_Communication {
         if (type?.useAreaCode)
             l << "+${com.nation?.tel}"
         l << com.text
-        l.findAll { it }.join(' ')
-        return l
+        return l.findAll { it }.join(' ')
     }
 }
 

@@ -6,4 +6,6 @@ import groovy.beans.Bindable
 class SelectionModel {
    // @Bindable String propName
     def _list = new BasicEventList()
+    @Bindable
+    boolean filterDoublets = false
 }

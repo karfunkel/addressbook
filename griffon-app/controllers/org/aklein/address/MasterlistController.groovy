@@ -228,9 +228,10 @@ class MasterlistController {
         else
             model.list = new BasicEventList(list)
 
-        if (filter)
-            model.filtered = new FilterList(model.list, new MasterlistMatcherEditor(model, filter))
-        else
+        if (filter) {
+            model.matcherEditor = new MasterlistMatcherEditor(model, filter)
+            model.filtered = new FilterList(model.list, model.matcherEditor)
+        } else
             model.filtered = model.list
 
         if (comparator)
