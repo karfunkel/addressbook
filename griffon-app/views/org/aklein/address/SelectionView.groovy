@@ -276,6 +276,7 @@ panel(id: 'mainPanel') {
                 label(constraints: 'GROW')
                 button(constraints: 'DELETE')
                 button(selectionView.createButton(app.getMessage('selectionlist.button.print.text'), controller.print), constraints: 'TRAILING')
+                button(selectionView.createButton(app.getMessage('selectionlist.button.printedit.text'), controller.printedit), constraints: 'TRAILING')
             }
     )
 }

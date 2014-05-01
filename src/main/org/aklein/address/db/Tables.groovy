@@ -236,9 +236,9 @@ class Relation {
 
     String getFullDisplay(Unit unit) {
         if (!unit) return ''
-        if (this.getUnit() == unit) {
+        if (this.getUnit()?.id == unit.id) {
             return app.getMessage('unit.relation.full.has', [this.getDescription() ?: '*', getDisplay(unit)])
-        } else if (this.getRelation() == unit) {
+        } else if (this.getRelation()?.id == unit.id) {
             return app.getMessage('unit.relation.full.is', [this.getDescription() ?: '*', getDisplay(unit)])
         } else
             return ''
@@ -246,9 +246,9 @@ class Relation {
 
     String getTypeDisplay(Unit unit) {
         if (!unit) return ''
-        if (this.getUnit() == unit) {
+        if (this.getUnit()?.id == unit.id) {
             return app.getMessage('unit.relation.is', 'is')
-        } else if (this.getRelation() == unit) {
+        } else if (this.getRelation()?.id == unit.id) {
             return app.getMessage('unit.relation.has', 'has')
         } else
             throw new IllegalArgumentException("Relation ${this.dump()} has no relation to unit ${unit.display}")
@@ -256,9 +256,9 @@ class Relation {
 
     String getDisplay(Unit unit) {
         if (!unit) return ''
-        if (this.getUnit() == unit) {
+        if (this.getUnit()?.id == unit.id) {
             return this.getRelation()?.display ?: ''
-        } else if (this.getRelation() == unit) {
+        } else if (this.getRelation()?.id == unit.id) {
             return this.getUnit()?.display ?: ''
         } else
             throw new IllegalArgumentException("Relation ${this.dump()} has no relation to unit ${unit.display}")

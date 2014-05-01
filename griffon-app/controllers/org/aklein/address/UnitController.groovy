@@ -75,12 +75,16 @@ class UnitController extends DialogControllerBase<UnitModel, UnitView> {
                     def address = m.address.delegate
                     def type = m.addressType
                     def note = m.note
-                    def entity = new Unit_Address(unit: model.unit.delegate, address: address, addressType: type, note: note)
                     server.beginTransaction()
+                    def unit = model.unit.delegate
+                    def entity = new Unit_Address(unit: unit, address: address, addressType: type, note: note)
                     try {
-                        server.insert(address)
-                        server.insert(entity)
+                        if(!unit.id)
+                            server.save(unit)
+                        server.save(address)
+                        server.save(entity)
                         server.commitTransaction()
+                        unit.unitAddresses << entity
                     } catch (e) {
                         server.rollbackTransaction()
                     }
@@ -155,7 +159,11 @@ class UnitController extends DialogControllerBase<UnitModel, UnitView> {
                 if (address) {
                     def entity = new Unit_Address(unit: model.unit.delegate, address: address, addressType: type, note: note)
                     withEbean { String ebeanServerName, EbeanServer server ->
+                        def unit = model.unit.delegate
+                        if(!unit.id)
+                            server.save(unit)
                         server.save(entity)
+                        unit.unitAddresses << entity
                         view.addressPanelGroup.model.list.readWriteLock.writeLock().lock()
                         try {
                             view.addressPanelGroup.model.list << entity
@@ -183,12 +191,16 @@ class UnitController extends DialogControllerBase<UnitModel, UnitView> {
                     def communication = m.communication.delegate
                     def type = m.communicationType
                     def note = m.note
+                    def unit = model.unit.delegate
                     def entity = new Unit_Communication(unit: model.unit.delegate, communication: communication, communicationType: type, note: note)
                     server.beginTransaction()
                     try {
-                        server.insert(communication)
-                        server.insert(entity)
+                        if(!unit.id)
+                            server.save(unit)
+                        server.save(communication)
+                        server.save(entity)
                         server.commitTransaction()
+                        unit.unitCommunications << entity
                     } catch (e) {
                         server.rollbackTransaction()
                     }
@@ -263,7 +275,11 @@ class UnitController extends DialogControllerBase<UnitModel, UnitView> {
                 if (communication) {
                     def entity = new Unit_Communication(unit: model.unit.delegate, communication: communication, communicationType: type, note: note)
                     withEbean { String ebeanServerName, EbeanServer server ->
+                        def unit = model.unit.delegate
+                        if(!unit.id)
+                            server.save(unit)
                         server.save(entity)
+                        unit.unitCommunications << entity
                         view.communicationPanelGroup.model.list.readWriteLock.writeLock().lock()
                         try {
                             view.communicationPanelGroup.model.list << entity
@@ -288,14 +304,20 @@ class UnitController extends DialogControllerBase<UnitModel, UnitView> {
             c.show()
             if (!m.cancelled) {
                 withEbean { String ebeanServerName, EbeanServer server ->
+                    def unit = model.unit.delegate
                     def entity
-                    if (m.type == 'has')
-                        entity = new Relation(unit: m.unit, relation: v.mainPanelGroup.model.selected[0], description: m.description)
-                    else
-                        entity = new Relation(relation: m.unit, unit: v.mainPanelGroup.model.selected[0], description: m.description)
                     server.beginTransaction()
                     try {
-                        server.insert(entity)
+                        if(!unit.id)
+                            server.save(unit)
+                        if (m.type == 'has') {
+                            entity = new Relation(unit: m.unit, relation: v.mainPanelGroup.model.selected[0], description: m.description)
+                            unit.sourceRelations << entity
+                        } else {
+                            entity = new Relation(relation: m.unit, unit: v.mainPanelGroup.model.selected[0], description: m.description)
+                            unit.targetRelations << entity
+                        }
+                        server.save(entity)
                         server.commitTransaction()
                     } catch (e) {
                         server.rollbackTransaction()

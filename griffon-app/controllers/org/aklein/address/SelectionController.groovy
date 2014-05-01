@@ -5,20 +5,20 @@ import ca.odell.glazedlists.matchers.MatcherEditor
 import com.avaje.ebean.EbeanServer
 import griffon.plugins.datasource.DataSourceHolder
 import griffon.transform.Threading
-import net.sf.jasperreports.engine.JREmptyDataSource
 import net.sf.jasperreports.engine.JasperCompileManager
-import net.sf.jasperreports.engine.JasperExportManager
+import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter
+import net.sf.jasperreports.engine.JRExporterParameter
 import net.sf.jasperreports.engine.JasperFillManager
 import net.sf.jasperreports.engine.JasperPrint
 import net.sf.jasperreports.engine.JasperReport
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource
-import net.sf.jasperreports.swing.JRViewer
+import net.sf.jasperreports.engine.export.ooxml.JRDocxExporterParameter
 import org.aklein.address.db.Address
 import org.aklein.address.db.Unit
 import org.aklein.address.db.Unit_Address
 import org.aklein.address.db.Unit_Communication
 
 import javax.swing.JFileChooser
+import java.awt.Desktop
 import java.awt.Window
 import java.util.prefs.Preferences
 
@@ -65,6 +65,47 @@ class SelectionController {
         }
     }
 
+    def printedit = {
+        def window = Window.windows.find { it.focused }
+        Preferences preferences = Preferences.userRoot().node('/org/aklein/addressbook')
+        String file = preferences.get('report/last', null)
+
+        JFileChooser fc = view.sourceDialog
+        if (file)
+            fc.selectedFile = new File(file)
+        if (fc.showOpenDialog() != JFileChooser.APPROVE_OPTION)
+            return
+
+        def selected = fc.selectedFile
+        preferences.put('report/last', selected.absolutePath)
+        preferences.flush()
+
+        if (!selected.name.endsWith('.jrxml'))
+            selected = new File(selected.parentFile, selected.name + '.jrxml')
+
+        if (selected.exists() && selected.file) {
+            Map<String, String> parameter = [:]
+            parameter.unit_list = (model._list.unit.id as Set).join(',')
+            parameter.unit_address_list = model._list.id.join(',')
+
+            JasperReport jasperReport = JasperCompileManager.compileReport(selected.absolutePath)
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameter, DataSourceHolder.instance.getDataSource().connection)
+            JRDocxExporter exporter = new JRDocxExporter()
+
+            String name = selected.name
+            int pos = name.lastIndexOf('.')
+            if (pos >= 0)
+                name = name.substring(0, pos)
+
+            File outFile = File.createTempFile(name, ".docx");
+            exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint)
+            exporter.setParameter(JRExporterParameter.OUTPUT_FILE, outFile)
+            exporter.setParameter(JRDocxExporterParameter.FLEXIBLE_ROW_HEIGHT, true)
+            exporter.exportReport()
+            Desktop.desktop.open(outFile)
+        }
+    }
+
     def select = {
         def toAdd = view.listGroup.model.selected
 
@@ -85,7 +126,7 @@ class SelectionController {
     def doublets = { evt ->
         model.filterDoublets = evt.source.selected
         MasterlistMatcherEditor editor = view.selectionModel.matcherEditor
-        if(editor)
+        if (editor)
             editor.fireChanged()
     }
 

@@ -35,7 +35,7 @@
      UNIT."VERSION" AS UNIT_VERSION
 FROM
      "PUBLIC"."UNIT" UNIT
-ORDER BY REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(CONCAT(UNIT."NAME",UNIT."LASTNAME",UNIT."NAME_PART",UNIT."FIRSTNAME"), 'Ä', 'A'), 'Ö', 'O'), 'Ü', 'U'), 'ä', 'a'), 'ö', 'o'), 'ü', 'u'), 'ß', 'ss')]]>
+ORDER BY REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(CONCAT(UNIT."NAME",UNIT."LASTNAME",UNIT."NAME_PART",UNIT."FIRSTNAME"), 'Ä', 'Ae'), 'Ö', 'Oe'), 'Ü', 'Ue'), 'ä', 'ae'), 'ö', 'oe'), 'ü', 'ue'), 'ß', 'ss')]]>
 	</queryString>
 	<field name="UNAME" class="java.lang.String"/>
 	<field name="UNIT_ID" class="java.lang.Integer"/>

@@ -103,8 +103,9 @@ ORDER BY UNAME]]>
 	<detail>
 		<band height="127" splitType="Prevent">
 			<textField isBlankWhenNull="true">
-				<reportElement uuid="2f6467ca-2351-4915-9a72-3afb16544cd4" style="default" x="260" y="4" width="230" height="120"/>
+				<reportElement uuid="2f6467ca-2351-4915-9a72-3afb16544cd4" style="default" x="260" y="4" width="292" height="120"/>
 				<textElement verticalAlignment="Middle" markup="html">
+					<font size="13"/>
 					<paragraph lineSpacing="Fixed" lineSpacingSize="10.0"/>
 				</textElement>
 				<textFieldExpression><![CDATA[new GroovyClassLoader().parseClass('''

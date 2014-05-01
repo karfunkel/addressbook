@@ -2,6 +2,8 @@ package org.aklein.address
 
 import org.aklein.address.db.Unit
 
+import java.awt.Color
+
 String orga = app.getMessage('application.flag.organisation').toLowerCase()
 String pers = app.getMessage('application.flag.person').toLowerCase()
 
