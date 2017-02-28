@@ -173,9 +173,12 @@ griffon.project.dependency.resolution = {
 
         // runtime 'mysql:mysql-connector-java:5.1.5'
         compile 'com.healthmarketscience.jackcess:jackcess:1.2.10'
-        compile 'com.google.http-client:google-http-client:1.14.1-beta'
-        compile 'com.google.http-client:google-http-client-jackson2:1.14.1-beta'
-        compile 'com.google.apis:google-api-services-oauth2:v2-rev35-1.14.2-beta'
+        compile 'com.google.http-client:google-http-client:1.22.0'
+        compile 'com.google.http-client:google-http-client-jackson2:1.22.0'
+        compile 'com.google.apis:google-api-services-oauth2:v2-rev124-1.22.0'
+        compile 'com.google.oauth-client:google-oauth-client-jetty:1.22.0'
+        compile 'com.google.oauth-client:google-oauth-client-java6:1.22.0'
+
         compile 'com.google.gdata:core:1.47.1'
         compile 'com.itextpdf:itextpdf:5.4.4'
     }

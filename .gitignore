@@ -3,3 +3,5 @@
 out
 staging
 dist
+data/*.db
+target

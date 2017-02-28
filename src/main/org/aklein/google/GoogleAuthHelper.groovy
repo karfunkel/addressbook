@@ -12,7 +12,7 @@ import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.oauth2.Oauth2
 import com.google.api.services.oauth2.model.Tokeninfo
-import com.google.api.services.oauth2.model.Userinfo
+import com.google.api.services.oauth2.model.Userinfoplus
 
 class GoogleAuthHelper {
     static final String APPLICATION_NAME = 'Addressbook'
@@ -56,15 +56,11 @@ class GoogleAuthHelper {
 
     private static void userInfo() throws IOException {
         header("Obtaining User Profile Information")
-        Userinfo userinfo = oauth2.userinfo().get().execute()
+        Userinfoplus userinfo = oauth2.userinfo().get().execute()
         //println(userinfo.toPrettyString())
     }
 
     static void header(String name) {
         //println "\n================== $name ==================\n"
     }
-
-
-
-
 }

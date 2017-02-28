@@ -3,7 +3,6 @@ package org.aklein.address
 import com.avaje.ebean.EbeanServer
 import com.google.api.client.auth.oauth2.Credential
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
-import com.google.api.client.extensions.java6.auth.oauth2.FileCredentialStore
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets
@@ -11,9 +10,8 @@ import com.google.api.client.http.HttpTransport
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.oauth2.Oauth2
-import com.google.gdata.client.Query
-import com.google.gdata.client.contacts.ContactQuery
 import com.google.gdata.client.contacts.ContactsService
 import com.google.gdata.data.DateTime
 import com.google.gdata.data.PlainTextConstruct
@@ -22,13 +20,14 @@ import com.google.gdata.data.extensions.*
 import com.google.gdata.util.PreconditionFailedException
 import org.aklein.address.db.*
 
-import javax.swing.JOptionPane
+import javax.swing.*
 import java.text.ParseException
 
 class GoogleService {
     HttpTransport httpTransport
     JsonFactory jsonFactory
     GoogleClientSecrets clientSecrets
+    FileDataStoreFactory dataStoreFactory
 
     Map<String, ContactsService> serviceCache = [:]
     Map<String, Credential> credentialCache = [:]
@@ -45,18 +44,20 @@ class GoogleService {
         details.setClientSecret(app.config.addressbook.clientSecret)
         details.setFactory(jsonFactory)
         clientSecrets.setInstalled(details)
+        //noinspection GroovyAssignabilityCheck
+        dataStoreFactory = new FileDataStoreFactory(new File(System.properties.'user.home', "${app.config.addressbook.home}"))
     }
 
     // void serviceDestroy() {
     //    // this method is called when the service is destroyed
     // }
 
-    Credential authorize(String userId) {
+    Credential authorize(String userId) throws Exception {
         if (credentialCache[userId])
             return credentialCache[userId]
 
-        FileCredentialStore credentialStore = new FileCredentialStore(new File(System.getProperty("user.home"), "${app.config.addressbook.home}/${userId}.json"), jsonFactory)
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, clientSecrets, app.config.addressbook.scopes).setCredentialStore(credentialStore).build()
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport, jsonFactory, clientSecrets, app.config.addressbook.scopes).
+                setDataStoreFactory(dataStoreFactory).build()
         Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize(userId)
         credential.refreshToken()
         credentialCache[userId] = credential

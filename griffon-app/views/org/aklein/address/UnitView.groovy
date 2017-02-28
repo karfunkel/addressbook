@@ -1,5 +1,6 @@
 package org.aklein.address
 
+import com.avaje.ebean.Ebean
 import org.aklein.address.db.*
 
 try {
@@ -46,7 +47,7 @@ def relationTypeDisplay(Relation relation, Unit unit) {
 def relationDisplay(Relation relation, Unit unit) {
     if (!relation) return ''
     return relation.getDisplay(unit)
-
+    // (obj.sourceRelations + obj.targetRelations)?.collect { it.getFullDisplay(obj) }?.join(', ')
 }
 
 buttonGroup(id: 'unitGroup')
@@ -311,7 +312,7 @@ panel(id: 'content') {
                                 ],
                                 [
                                         name: 'description',
-                                        class: String
+                                        class: Stringd
                                 ]
                         ]),
                         columnModel: columnModelFix {

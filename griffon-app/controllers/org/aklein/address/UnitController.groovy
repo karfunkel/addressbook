@@ -1,7 +1,9 @@
 package org.aklein.address
 
 import ca.odell.glazedlists.BasicEventList
+import com.avaje.ebean.Ebean
 import com.avaje.ebean.EbeanServer
+import com.avaje.ebean.FetchConfig
 import griffon.transform.Threading
 import org.aklein.address.db.Address
 import org.aklein.address.db.Communication
@@ -294,7 +296,11 @@ class UnitController extends DialogControllerBase<UnitModel, UnitView> {
     }
 
     @Threading(Threading.Policy.SKIP)
-    def loadRelations = { model.unit.sourceRelations + model.unit.targetRelations }
+    def loadRelations = {
+        List<Relation> relations = Ebean.find(Relation).fetch('unit', new FetchConfig().query()).fetch('relation', new FetchConfig().query()).where().eq('unit.id', model.unit.id).findList()
+        relations += Ebean.find(Relation).fetch('unit', new FetchConfig().query()).fetch('relation', new FetchConfig().query()).where().eq('relation.id', model.unit.id).findList()
+        return relations
+    }
 
     @Threading(Threading.Policy.SKIP)
     def createRelation = {
